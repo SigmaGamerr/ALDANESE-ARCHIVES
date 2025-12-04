@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Aldanese Archives — Roster</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  </head>
+  <body>
+    <header>
+      <div>
+        <h1>Aldanese Army Roster</h1>
+        <p>Last updated: {{ army.last_change if army.last_change else "N/A" }}</p>
+      </div>
+      <div>
+        {% if session.email %}
+          <span>Signed in as {{ session.email }} (role: {{ session.role }})</span>
+          &nbsp;—&nbsp;<a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+          <a href="{{ url_for('login') }}">Login</a>
+        {% endif %}
+      </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <section class="section">
+      <h3>Add member</h3>
+      <form method="post" action="{{ url_for('add') }}">
+        <input type="text" name="name" placeholder="Full name" required>
+        <select name="rank" required>
+          <option value="">Rank...</option>
+          {% for code, label in ranks_officers.items() %}
+            <option value="{{ code }}">{{ code }} — {{ label }}</option>
+          {% endfor %}
+          {% for code, label in ranks_enlisted.items() %}
+            <option value="{{ code }}">{{ code }} — {{ label }}</option>
+          {% endfor %}
+        </select>
+        <button type="submit" {% if session.role == 'LR' or not session.role %}disabled{% endif %}>Add</button>
+      </form>
+      {% if session.role == 'LR' or not session.role %}
+        <p class="badge">Login required for add</p>
+      {% endif %}
+    </section>
+
+    <section class="section">
+      <h3>Roster</h3>
+      <ul>
+        {% for s in army.units %}
+          <li>
+            <a href="{{ url_for('soldier_page', soldier_id=s.id) }}">{{ s.id }} — {{ s.name }} ({{ s.rank }} {{ ranks_all.get(s.rank, '') }})</a>
+            {% if s.medals %}
+              &nbsp;|&nbsp; Medals:
+              {% for m in s.medals %}
+                <span class="badge">{{ m }}</span>
+              {% endfor %}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="section">
+      <h3>Stats</h3>
+      <p>Officers: {{ stats.officers }} | Enlisted: {{ stats.enlisted }} | Total: {{ stats.total }} | Medals awarded: {{ stats.total_medals }}</p>
+    </section>
+  </body>
+</html>
