@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Login — Aldanese Archives</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  </head>
+  <body>
+    <header>
+      <h1>Aldanese Archives</h1>
+      <nav><a href="{{ url_for('index') }}">Roster</a></nav>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <h2>Sign in</h2>
+    <form method="post" action="{{ url_for('login') }}" style="grid-template-columns: 1fr 1fr auto;">
+      <input type="text" name="username" placeholder="e.g., Aldan_Toba" required>
+      <input type="password" name="password" placeholder="Archives password" required>
+      <button type="submit">Login</button>
+    </form>
+    <p>Tip: usernames are the name with underscores, e.g., Aldan_Toba</p>
+  </body>
+</html>
